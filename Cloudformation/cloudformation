@@ -1,0 +1,42 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CFT to deploy MyEC2Instance.'
+
+Parameters:
+  InstanceType:
+    Type: String
+    Default: t2.micro
+    AllowedValues: [t2.micro]
+    Description: Select the EC2 instance type.
+
+Resources:
+  # CFT for EC2 Details 
+  MyEC2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: 'ami-068c0051b15cdb816'
+      SecurityGroupIds: 
+        - !Ref EC2DeploySecurityGroup
+      Tags:
+        - Key: Name
+          Value: EC2CloudFormation
+
+  # Security Group to allow SSH
+  EC2DeploySecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      DeletionPolicy: Retain
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  InstanceId:
+    Description: The Instance ID of the newly created EC2 instance.
+    Value: !Ref MyEC2Instance
+  PublicIP:
+    Description: Public IP address of the instance.
+    Value: !GetAtt MyEC2Instance.PublicIp
